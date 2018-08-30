@@ -1,0 +1,34 @@
+    server {
+        listen       80 default_server;
+        listen       [::]:80 default_server;
+
+        server_name SERVERNAME;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # Load configuration files for the default server block.
+        include /etc/nginx/default.d/*.conf;
+
+        location / {
+            proxy_pass http://web.dev/;
+        }
+
+        location /a {
+            absolute_redirect off;
+            rewrite ^(/a)$ $1/ permanent;
+        }
+
+        location /a/ {
+            proxy_pass http://web.dev:8081/;
+        }
+
+        error_page 404 /404.html;
+            location = /40x.html {
+        }
+
+        error_page 500 502 503 504 /50x.html;
+            location = /50x.html {
+        }
+    }
